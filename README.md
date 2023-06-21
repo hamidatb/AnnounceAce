@@ -6,9 +6,9 @@ AnnounceAce is a personalized Discord bot designed to reduce the burden of serve
 - Automated, scheduled announcements with server-specific customization.
 - Easy access to group information, such as meeting times and contact info.
 
-#### License
+### License
 This project is licensed under the MIT License. See LICENSE for more details.
 
-#### Contact
+### Contact
 For any inquiries or feedback, please feel free to reach out to me!
 
