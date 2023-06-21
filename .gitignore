@@ -1,1 +1,7 @@
-
+# .gitignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyc
+.DS_Store
