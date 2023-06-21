@@ -1,4 +1,5 @@
-# AnnounceAce
+# AnnounceAce: Discord Bot
+
 AnnounceAce is a personalized Discord bot designed to reduce the burden of server management and communication. Its primary function is automating the scheduling and announcement process on Discord servers, making it a tool for system administrators. 
 
 While I made this with student groups in mind, anyone running a discord server can likely find some use in this.
