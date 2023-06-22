@@ -10,6 +10,6 @@ token = os.getenv('TOKEN')
 
 async def send_message(message, user_message, is_private):
     try:
-        # Has to be implemented
+        print("lol")
     except:
-        # Has to be implemented
+        print("lol")
