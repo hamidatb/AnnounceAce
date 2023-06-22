@@ -16,7 +16,7 @@ client = discord.Client(intents=intents)
 @client.event
 # Events that occur must be initialized
 async def on_ready():
-    print(f"AnnounceAce has logged in as {0.user}".format(client))
+    print("AnnounceAce has logged in as {0.user}".format(client))
 
 @client.event
 # This event is to find out why an error happened if one occurred.
