@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import discord
+from discord.ext import commands
 from discord import Intents
 
 # load values from .env file
@@ -9,35 +10,34 @@ token = os.getenv('TOKEN')
 
 intents = Intents.default()
 intents.messages = True
+intents.guilds = True
+intents.guild_messages = True
 intents.typing = False
 intents.presences = False
 
-client = discord.Client(intents=intents)
+# Change client to use bot with command_prefix
+bot = commands.Bot(command_prefix="$Ace ", intents=intents)
 
-@client.event
+@bot.event
 # Events that occur must be initialized
 async def on_ready():
-    print("AnnounceAce has logged in as {0.user}".format(client))
+    print(f"AnnounceAce has logged in as {bot.user}")
 
-@client.event
+@bot.event
 # This event is to find out why an error happened if one occurred.
 async def on_error(event, *args, **kwargs):
     import traceback
     print("An error has occurred: ", traceback.format_exc())
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        # If the message author is AnnounceAce itself, ignore the message.
-        return
+# Using commands instead of on_message
+@bot.command(name='shutdown')
+async def shutdown(ctx):
+    await ctx.send("Shutting down...")
+    await bot.close()
 
-    msg_content = message.content.strip()
-    print(f"Message received from {message.author}: {msg_content}")
+@bot.command(name='hello')
+async def hello(ctx):
+    await ctx.send("Hello!")
 
-    if msg_content == "$Ace shutdown":
-        await message.channel.send("Shutting down...")
-        await client.close()
-    elif msg_content.startswith("$Ace"):
-        await message.channel.send("Hello!")
-
-client.run(os.getenv("TOKEN"))
+# Use bot.run instead of client.run
+bot.run(token)
