@@ -8,6 +8,7 @@ load_dotenv()
 token = os.getenv('TOKEN')
 
 intents = Intents.default()
+intents.messages = True
 intents.typing = False
 intents.presences = False
 
