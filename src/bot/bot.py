@@ -7,17 +7,15 @@ import responses
 def run_discord_bot():
     load_dotenv()
     token = os.getenv('TOKEN')
-    
     intents = discord.Intents.default()
     intents.messages = True  # Enable messages
-    
+    intents.message_content = True  # Enable message content
     client = discord.Client(intents=intents)  # Pass intents as a keyword argument
 
     @client.event
-    #This triggers everytime this code is ran, and lets you know that the bot is ready to be used on the server.
     async def on_ready():
         print("AnnounceAce has logged in as {0.user}".format(client))
-    
+
     @client.event
     async def on_message(message):
         if message.author == client.user:
@@ -26,27 +24,31 @@ def run_discord_bot():
         username = str(message.author)
         user_message = str(message.content)
         channel = str(message.channel)
-
+        
         print(f"{username} said: '{user_message}' ({channel})")
         
-        #This means it removes the question mark at the start of the message sent in private so that it processes the string normally.
-        if user_message [0] == "?":
+        # If the message starts with a ?, respond to the user in private
+        if user_message.startswith("?"):
             user_message = user_message[1:]
-            await send_message(message, user_message, is_private=True)
-        else:
-            await send_message(message, user_message, is_private=False)
+            await send_response(message, user_message, is_private=True)
 
+        # If the message starts with a &, respond to the user in the public channel in which the message was sent.
+        elif user_message.startswith("&"):
+            user_message = user_message[1:]
+            await send_response(message, user_message, is_private=False)
+
+        #If the message does not start with either & or ?, AnnounceAce will ignore it.
     client.run(token)
 
-async def send_message(message, user_message, is_private):
+
+async def send_response(message, user_message, is_private):
     try:
         response = responses.get_responses(user_message)
-        
-        #Send the message directly to the author if it is a private message, otherwise send publically in the channel.
+        # Send the message directly to the author if it is a private message, otherwise send publicly in the channel.
         await message.author.send(response) if is_private else await message.channel.send(response)
     except Exception as error:
         print(error)
 
-# This is important to make sure that you're running the code in the correct file.
+
 if __name__ == '__main__':
     run_discord_bot()
