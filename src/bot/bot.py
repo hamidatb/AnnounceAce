@@ -64,3 +64,4 @@ async def schedule_announcement(ctx, date: str, time: str, *, announcement: str)
         await ctx.send(f"Error scheduling announcement. Make sure the date is in MM-DD-YYYY format and time in 24-hour format HH:MM. Error details: {str(e)}")
 
 bot.run(token)
+
