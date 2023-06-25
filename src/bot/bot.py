@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+import utils
 
 load_dotenv()
 token = os.getenv('TOKEN')
@@ -26,5 +27,11 @@ async def private_message(ctx, *, message):
 @bot.command(name='public')
 async def public_message(ctx, *, message):
     await ctx.send(message)
+
+
+@bot.command(name='features')
+async def explain_features(ctx):
+    await ctx.send(" Hi! Thanks for installing Announce Ace! \n Here are my features: ")
+    #Fill this in more later.
 
 bot.run(token)
