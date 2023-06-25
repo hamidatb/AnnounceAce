@@ -1,68 +1,66 @@
 import os
-import sqlite3
+from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from datetime import datetime, timedelta
+import utils 
+from datetime import datetime
 
-# Connect to SQLite database
-conn = sqlite3.connect('bot_data.db')
-cursor = conn.cursor()
+load_dotenv()
+token = os.getenv('TOKEN')
+intents = discord.Intents.default()
+intents.messages = True
+intents.message_content = True
 
-# Initialize bot and scheduler
-bot = commands.Bot(command_prefix="!")
-scheduler = AsyncIOScheduler()
-scheduler.start()
+bot = commands.Bot(command_prefix="!", intents=intents)  # Using "!" as the command prefix.
 
+# Call the functions from utils to create the database and message table
+utils.create_database()
+utils.create_message_table()
+
+
+""" Making sure the bot is running as expected. """
 @bot.event
 async def on_ready():
     print(f"{bot.user} has connected to Discord!")
 
-# --- COMMANDS ---
+""" AnnounceAce will say hello if it's said to it first """
+@bot.command(name='Hello' or 'hello')
+async def hello(ctx):
+    await ctx.send("Hello!")
 
-@bot.command(name='set_name')
-@commands.has_permissions(administrator=True)
-async def set_name(ctx, *, name):
-    # Research how to change the bot's username using discord.py.
-    # Use SQL to store server-specific names.
-    pass
+""" Reply to the message in private if wanted """
+@bot.command(name='private')
+async def private_message(ctx, *, message):
+    await ctx.author.send(message)
 
-@bot.command(name='set_avatar')
-@commands.has_permissions(administrator=True)
-async def set_avatar(ctx, url):
-    # Research how to change the bot's avatar using discord.py.
-    # Use SQL to store server-specific avatars.
-    pass
+""" Reply to the message publically in the current channel if wanted"""
+@bot.command(name='public')
+async def public_message(ctx, *, message):
+    await ctx.send(message)
 
-@bot.command(name='schedule_announcement')
-@commands.has_permissions(administrator=True)
-async def schedule_announcement(ctx, datetime_str, frequency, times, *, announcement):
-    # Use the AsyncIOScheduler to schedule announcements.
-    # Research date/time formatting and timedelta for frequency.
-    # Store the scheduled announcements in the SQLite database.
-    pass
 
-@bot.command(name='add_event')
-@commands.has_permissions(administrator=True)
-async def add_event(ctx, datetime_str, *, event_info):
-    # Research how to use datetime objects in Python.
-    # Store event information in SQLite.
-    pass
+""" Scheduling a message """
+@bot.command(name='schedule')
+# I want the user to be able to schdule an announcement like:
+# "!schedule 06-30-2023 12:00 This is a scheduled announcement!"
+async def schedule_announcement(ctx, date: str, time: str, *, announcement: str):
+    try:
+    # Combining the date and time into one string, and converting it into a date-time format that Python can understand.
+        scheduled_time_str = f"{date} {time}:00"
+        # Converting the string to a Python datetime object
+        scheduled_time = datetime.strptime(scheduled_time_str, "%m-%d-%Y %H:%M:%S")
+        # Grabbing the ID of the channel where the command was used, so we know where to send the announcement.
+        channel_id = ctx.channel.id
 
-@bot.command(name='check_events')
-async def check_events(ctx):
-    # Retrieve all the upcoming events from SQLite and send them in a message.
-    pass
+        # This is where I'm calling the 'schedule_announcement' function from the utils module to actually schedule the announcement.
+        # We pass it the channel ID, the announcement text, and the time we want it to go out.
+        utils.schedule_announcement(channel_id, announcement, scheduled_time)
+        
+        # Telling the user that their announcement was scheduled successfully
+        await ctx.send("Announcement scheduled successfully for {} at {}!".format(date, time))
+    # 'except' means: if there was any error in the 'try' part, do this instead
+    except Exception as e:
+        # Telling the user that something went wrong, and giving them some information on what might have caused the error.
+        await ctx.send(f"Error scheduling announcement. Make sure the date is in MM-DD-YYYY format and time in 24-hour format HH:MM. Error details: {str(e)}")
 
-@bot.command(name='check_announcements')
-async def check_announcements(ctx):
-    # Retrieve all the upcoming announcements from SQLite and send them in a message.
-    pass
-
-@bot.command(name='help_deep')
-async def help_deep(ctx):
-    # Send a message explaining in-depth how to use the bot and provide a link to the GitHub repository.
-    pass
-
-# Running the bot
-bot.run("YOUR_BOT_TOKEN")
+bot.run(token)
